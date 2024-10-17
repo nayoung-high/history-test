@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세계사와 한국사 퀴즈</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options {
+            margin-bottom: 20px;
+        }
+        .option {
+            display: block;
+            margin: 5px 0;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .start-button {
+            margin: 10px 0;
+        }
+        .congratulations {
+            display: none;
+            margin-top: 20px;
+            font-size: 20px;
+            color: green;
+            text-align: center;
+        }
+    </style>
+    <script>
+        const historyQuestions = [
+            // 세계사 질문
+            {
+                question: "제2차 세계대전이 시작된 해는?",
+                options: ["1939", "1941", "1945", "1940"],
+                answer: "1939"
+            },
+            {
+                question: "프랑스 혁명이 일어난 해는?",
+                options: ["1789", "1776", "1799", "1804"],
+                answer: "1789"
+            },
+            {
+                question: "아메리카 대륙이 발견된 연도는?",
+                options: ["1492", "1500", "1519", "1607"],
+                answer: "1492"
+            },
+            {
+                question: "비잔틴 제국이 멸망한 해는?",
+                options: ["1453", "1492", "1415", "1466"],
+                answer: "1453"
+            },
+            {
+                question: "산업 혁명이 시작된 나라는?",
+                options: ["영국", "프랑스", "독일", "미국"],
+                answer: "영국"
+            },
+            {
+                question: "냉전이 시작된 해는?",
+                options: ["1947", "1945", "1950", "1960"],
+                answer: "1947"
+            },
+            {
+                question: "중국의 문화대혁명은 어느 시기에 발생했나요?",
+                options: ["1966-1976", "1958-1962", "1976-1989", "1949-1956"],
+                answer: "1966-1976"
+            },
+            {
+                question: "소련이 우주에서 첫 번째 인류를 보낸 해는?",
+                options: ["1961", "1957", "1965", "1969"],
+                answer: "1961"
+            },
+            {
+                question: "독일의 통일이 이루어진 해는?",
+                options: ["1990", "1989", "1991", "1988"],
+                answer: "1990"
+            },
+            {
+                question: "제1차 세계대전이 끝난 해는?",
+                options: ["1918", "1919", "1920", "1921"],
+                answer: "1918"
+            },
+        ];
+
+        const koreanQuestions = [
+            // 한국사 질문
+            {
+                question: "고구려가 멸망한 해는?",
+                options: ["668", "676", "660", "676"],
+                answer: "668"
+            },
+            {
+                question: "세종대왕이 훈민정음을 창제한 연도는?",
+                options: ["1443", "1418", "1450", "1420"],
+                answer: "1443"
+            },
+            {
+                question: "일제 강점기가 시작된 해는?",
+                options: ["1910", "1905", "1920", "1930"],
+                answer: "1910"
+            },
+            {
+                question: "한국 전쟁이 발발한 연도는?",
+                options: ["1950", "1945", "1960", "1970"],
+                answer: "1950"
+            },
+            {
+                question: "삼일운동이 일어난 해는?",
+                options: ["1919", "1920", "1945", "1930"],
+                answer: "1919"
+            },
+            {
+                question: "한국의 독립이 선언된 날은?",
+                options: ["1945년 8월 15일", "1910년 8월 29일", "1919년 3월 1일", "1948년 10월 3일"],
+                answer: "1945년 8월 15일"
+            },
+            {
+                question: "광복 이후 첫 대통령은 누구인가?",
+                options: ["이승만", "김구", "박정희", "이희호"],
+                answer: "이승만"
+            },
+            {
+                question: "4.19 혁명이 일어난 해는?",
+                options: ["1960", "1970", "1950", "1945"],
+                answer: "1960"
+            },
+            {
+                question: "부마항쟁이 일어난 해는?",
+                options: ["1979", "1980", "1987", "1992"],
+                answer: "1979"
+            },
+            {
+                question: "이순신 장군이 활약한 전투는?",
+                options: ["한산도 대첩", "정유재란", "임진왜란", "세종대왕"],
+                answer: "한산도 대첩"
+            },
+        ];
+
+        let selectedQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz(type) {
+            selectedQuestions = (type === "history") ? historyQuestions : koreanQuestions;
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById("quiz-container").style.display = "block";
+            document.getElementById("selection-container").style.display = "none";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex < selectedQuestions.length) {
+                const questionContainer = document.getElementById("question");
+                const optionsContainer = document.getElementById("options");
+                const currentQuestion = selectedQuestions[currentQuestionIndex];
+
+                questionContainer.innerText = currentQuestion.question;
+                optionsContainer.innerHTML = '';
+
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement("button");
+                    button.innerText = option;
+                    button.classList.add("option");
+                    button.onclick = () => checkAnswer(option);
+                    optionsContainer.appendChild(button);
+                });
+            } else {
+                showResult();
+            }
+        }
+
+        function checkAnswer(selectedOption) {
+            const currentQuestion = selectedQuestions[currentQuestionIndex];
+
+            if (selectedOption === currentQuestion.answer) {
+                score += 5; // 맞추면 5점
+            }
+
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showResult() {
+            const quizContainer = document.getElementById("quiz-container");
+            quizContainer.innerHTML = `
+                <div class="result">
+                    퀴즈 완료! 당신의 점수는 ${score} / ${selectedQuestions.length * 5}입니다.
+                </div>
+                ${score === 100 ? '<div class="congratulations">축하합니다! 팡파레! 🎉</div>' : ''}
+                <button onclick="restartQuiz()">다시 시작하기</button>
+            `;
+
+            if (score === 100) {
+                const audio = new Audio('https://www.soundjay.com/button/sounds/applause-01.mp3'); // 팡파레 소리
+                audio.play();
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("selection-container").style.display = "block";
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>세계사와 한국사 퀴즈</h1>
+    </header>
+    <div class="quiz-container" id="quiz-container" style="display: none;">
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+    </div>
+    <div class="selection-container" id="selection-container">
+        <h2>퀴즈 유형 선택</h2>
+        <button class="start-button" onclick="startQuiz('history')">세계사 퀴즈 시작하기</button>
+        <button class="start-button" onclick="startQuiz('korean')">한국사 퀴즈 시작하기</button>
+    </div>
+</body>
+</html>
